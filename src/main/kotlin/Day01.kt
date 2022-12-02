@@ -9,7 +9,7 @@ fun main(args: Array<String>) {
     println("There are ${elfCalories.size} elves")
 
     // Part 1
-    println("The elf with the most calories has ${elfCalories[0]} calories")
+    println("The elf with the most calories has ${elfCalories.first()} calories")
 
     // Part 2
     println("The three elves with the most calories have ${elfCalories.take(3).sum()} calories")
