@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
         "B X" to 1, "B Y" to 5, "B Z" to 9,
         "C X" to 7, "C Y" to 2, "C Z" to 6,
     )
-    println("Part 1 - after following the guide, the final score is ${guide.sumOf { scoreMap1[it]!! }}")
+    println("Part 1 - after following the guide, the final score is ${guide.sumOf { scoreMap1.getValue(it) }}")
 
     // Part 2 - play the game with the new interpretation of the guide and calculate the score
     val scoreMap2 = mapOf(
@@ -21,5 +21,5 @@ fun main(args: Array<String>) {
         "B X" to 1, "B Y" to 5, "B Z" to 9,
         "C X" to 2, "C Y" to 6, "C Z" to 7,
     )
-    println("Part 2 - after following the guide, the final score is ${guide.sumOf { scoreMap2[it]!! }}")
+    println("Part 2 - after following the guide, the final score is ${guide.sumOf { scoreMap2.getValue(it) }}")
 }
