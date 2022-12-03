@@ -4,9 +4,8 @@ fun main(args: Array<String>) {
     println("2022 Advent of Code day 3")
 
     // Setup - read the rucksack contents
-    val rucksacks = ArrayList<Pair<Set<Char>, Set<Char>>>()
-    File("day3input").forEachLine { line ->
-        rucksacks.add(Pair(line.take(line.length/2).toSet(), line.takeLast(line.length/2).toSet()))
+    val rucksacks = File("day3input").readLines().map { line ->
+        Pair(line.take(line.length/2).toSet(), line.takeLast(line.length/2).toSet())
     }
     println("There are ${rucksacks.size} rucksacks to examine")
 
