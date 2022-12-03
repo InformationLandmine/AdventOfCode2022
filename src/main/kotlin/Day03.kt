@@ -16,9 +16,10 @@ fun main(args: Array<String>) {
     println(part1)
 
     // Part 2 - find common item in each group of three rucksacks
-    val part2 = rucksacks.windowed(3, 3).sumOf {
-        val item = (it[0].first + it[0].second).intersect(it[1].first + it[1].second).intersect(it[2].first + it[2].second).first()
-        if (item.code - 96 > 0) item.code - 96 else item.code - 38
+    val part2 = rucksacks.windowed(3, 3).sumOf { sackGroup ->
+        sackGroup.map { it.first + it.second }.reduce { acc, next -> acc.intersect(next) }.first().let {
+            if (it.code - 96 > 0) it.code - 96 else it.code - 38
+        }
     }
     println(part2)
 }
