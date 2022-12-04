@@ -1,6 +1,4 @@
 import java.io.File
-import kotlin.math.max
-import kotlin.math.min
 
 fun main(args: Array<String>) {
     println("2022 Advent of Code day 4")
@@ -11,9 +9,7 @@ fun main(args: Array<String>) {
             range.split("-").let {
                 IntRange(it[0].toInt(), it[1].toInt())
             }
-        }.let {
-            Pair(it[0], it[1])
-        }
+        }.let { Pair(it[0], it[1]) }
     }
     println("There are ${assignments.size} assignments to check")
 
@@ -25,8 +21,6 @@ fun main(args: Array<String>) {
     println("There are $part1 fully overlapping assignments")
 
     // Part 2 - find the partially overlapping assignments
-    val part2 = assignments.count {
-        !IntRange(max(it.first.first, it.second.first), min(it.first.last, it.second.last)).isEmpty()
-    }
+    val part2 = assignments.count { it.first.intersect(it.second).isNotEmpty() }
     println("There are $part2 partially overlapping assignments")
 }
