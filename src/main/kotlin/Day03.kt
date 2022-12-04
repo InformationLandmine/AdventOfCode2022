@@ -5,7 +5,7 @@ fun main(args: Array<String>) {
 
     // Setup - read the rucksack contents
     val rucksacks = File("day3input").readLines().map { line ->
-        Pair(line.take(line.length/2).toSet(), line.takeLast(line.length/2).toSet())
+        Pair(line.take(line.length / 2).toSet(), line.takeLast(line.length / 2).toSet())
     }
     println("There are ${rucksacks.size} rucksacks to examine")
 
