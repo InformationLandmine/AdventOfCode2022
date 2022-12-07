@@ -41,13 +41,13 @@ fun main(args: Array<String>) {
 
     // Part 2 - find the smallest directory to delete that will result enough free space
     val spaceNeeded = 30000000 - (70000000 - root.size)
-    val part2 = root.allDirs.filter { it.size >= spaceNeeded }.sortedByDescending { it.size }.last().size
+    val part2 = root.allDirs.filter { it.size >= spaceNeeded }.minByOrNull { it.size }?.size
     println("The smallest directory that can be deleted to result in enough free space has a size of $part2")
 }
 
 enum class NodeType { File, Directory }
 
-class FSNode(val name:String, val type: NodeType, val sizeOnDisk: Long, val parent: FSNode?) {
+class FSNode(val name: String, private val type: NodeType, private val sizeOnDisk: Long, val parent: FSNode?) {
     val contents = ArrayList<FSNode>()
     val size: Long get() = if (type == NodeType.File) sizeOnDisk else contents.sumOf { it.size }
     val localDirs get() = contents.filter { it.type == NodeType.Directory }
