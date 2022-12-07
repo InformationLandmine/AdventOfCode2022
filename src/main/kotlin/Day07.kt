@@ -27,21 +27,22 @@ fun main(args: Array<String>) {
             else if (line == "$ ls") listing = true
             else if (line.startsWith("$ cd")) {
                 val dirName = line.split(" ").last()
-                if (dirName == "..") current = current.parent!!
-                else current = current.contents.find { it.name == dirName }!!
-            } else println("unknown command $line")
+                if (dirName == "..") current.parent?.let { current = it }
+                else current.contents.find { it.name == dirName }?.let { current = it }
+            }
+            else println("unknown command $line")
         }
     }
 
 
     // Part 1 - find the total size of all directories 100000 or smaller
-    val part1 = root.dirs.filter { it.size <= 100000 }.sumOf { it.size }
-    println(part1)
+    val part1 = root.allDirs.filter { it.size <= 100000 }.sumOf { it.size }
+    println("The total size of all directories 100000 moon units or less is $part1")
 
     // Part 2 - find the smallest directory to delete that will result enough free space
     val spaceNeeded = 30000000 - (70000000 - root.size)
-    val part2 = root.dirs.filter { it.size >= spaceNeeded }.sortedByDescending { it.size }.last().size
-    println(part2)
+    val part2 = root.allDirs.filter { it.size >= spaceNeeded }.sortedByDescending { it.size }.last().size
+    println("The smallest directory that can be deleted to result in enough free space has a size of $part2")
 }
 
 enum class NodeType { File, Directory }
@@ -49,9 +50,6 @@ enum class NodeType { File, Directory }
 class FSNode(val name:String, val type: NodeType, val sizeOnDisk: Long, val parent: FSNode?) {
     val contents = ArrayList<FSNode>()
     val size: Long get() = if (type == NodeType.File) sizeOnDisk else contents.sumOf { it.size }
-    val dirs: List<FSNode>
-        get() {
-            return contents.filter { it.type == NodeType.Directory } +
-                contents.filter { it.type == NodeType.Directory }.flatMap { it.dirs }
-        }
+    val localDirs get() = contents.filter { it.type == NodeType.Directory }
+    val allDirs: List<FSNode> get() = localDirs + localDirs.flatMap { it.allDirs }
 }
