@@ -24,35 +24,19 @@ fun main(args: Array<String>) {
             else -> throw Exception("Invalid input direction")
         }
         repeat(instruction.second) {
-            move(head, offset)
+            head.move(offset)
             visited.add(tail.location)
         }
     }
     println("The number of positions the tail visits at least once is ${visited.size}")
 }
 
-fun move(knot: RopeKnot, offset: Point) {
-    knot.location += offset
-    knot.next?.let {
-        if (!knot.location.surrounding.contains(it.location)) {
-            move(it, moveCloser(it, knot.location))
-        }
-    }
-}
-
-fun moveCloser(knot: RopeKnot, loc: Point): Point {
-    val dx = if (knot.location.x == loc.x) 0 else -1 * abs(knot.location.x - loc.x) / (knot.location.x - loc.x)
-    val dy = if (knot.location.y == loc.y) 0 else -1 * abs(knot.location.y - loc.y) / (knot.location.y - loc.y)
-    return Point(dx, dy)
-}
-
 data class Point(val x:Int, val y:Int) {
-    val surrounding: Set<Point> get() {
-        return setOf(
-            Point(x - 1, y + 1), Point(x, y + 1), Point(x + 1, y + 1),
-            Point(x - 1, y), Point(x, y), Point(x + 1, y),
-            Point(x - 1, y - 1), Point(x, y - 1), Point(x + 1, y - 1),
-        )
+    fun isAdjacent(other: Point) = abs(x - other.x) <= 1 && abs(y - other.y) <= 1
+    fun closerOffset(other: Point): Point {
+        val dx = if (x == other.x) 0 else -1 * abs(x - other.x) / (x - other.x)
+        val dy = if (y == other.y) 0 else -1 * abs(y - other.y) / (y - other.y)
+        return Point(dx, dy)
     }
     operator fun plus(other: Point): Point {
         return Point(this.x + other.x, this.y + other.y)
@@ -61,4 +45,12 @@ data class Point(val x:Int, val y:Int) {
 
 class RopeKnot(val next: RopeKnot?) {
     var location = Point(0, 0)
+    fun move(offset: Point) {
+        location += offset
+        next?.let {
+            if (!it.location.isAdjacent(location)) {
+                it.move(it.location.closerOffset(location))
+            }
+        }
+    }
 }
