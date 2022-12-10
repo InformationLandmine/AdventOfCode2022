@@ -5,8 +5,9 @@ fun main(args: Array<String>) {
     println("2022 Advent of Code day 10")
 
     // Setup - Read the program
-    val program =
-        File("day10input").readLines().map { line -> line.split(" ").let { Pair(it.first(), it.last().toIntOrNull()) } }
+    val program = File("day10input").readLines().map { line ->
+        line.split(" ").let { Pair(it.first(), it.last().toIntOrNull()) }
+    }
 
     // Just convert each addx instruction to a noop and addx to keep the processor simple
     val modifiedProgram = program.flatMap { instr ->
