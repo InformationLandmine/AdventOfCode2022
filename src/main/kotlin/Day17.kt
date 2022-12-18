@@ -11,15 +11,48 @@ fun main(args: Array<String>) {
         Rock(listOf(Point(0, 0), Point(0, 1), Point(0, 2), Point(0, 3))),
         Rock(listOf(Point(0, 0), Point(1, 0), Point(0, 1), Point(1, 1))),
     ))
-    val currents = Currents(File("day17test").readText().trim())
+    val currents = Currents(File("day17input").readText().trim())
+    val chamber = Chamber(7, rockPile, currents)
 
     // Part 1 - Drop 2022 rocks in the chamber and find the height
-    val chamber = Chamber(7, rockPile, currents)
-    repeat(10000) { chamber.dropRock() }
-    println(chamber.highestRow)
+    val part1times = 2022
+    repeat(part1times) {
+        chamber.dropRock()
+        chamber.truncate()
+    }
+    println("After $part1times rocks fall, the highest rock in the chamber is at ${chamber.highestRow}")
+
+    // Part 2 - Drop way more rocks in the chamber and find the height
+    chamber.reset()
+    val stateSet = HashMap<ChamberState, Pair<Long, Int>>()
+    val numRocks = 1000000000000L
+    var done = false
+    val startTime = System.currentTimeMillis()
+    do {
+        chamber.dropRock()
+        val state = chamber.truncate()
+        if (stateSet.contains(state)) {
+            val (oldCount, oldHeight) = stateSet.getValue(state)
+            val deltaH = chamber.highestRow - oldHeight
+            val deltaR = chamber.rockCount - oldCount
+            val remainder = (numRocks - oldCount) % deltaR
+            val (_, remainderHeight) = stateSet.filterValues { it.first == oldCount + remainder }.values.first()
+            val totalHeight = ((numRocks - oldCount) / deltaR) * deltaH + remainderHeight
+            println("Repeat state after rock ${chamber.rockCount}, height ${chamber.highestRow}, first seen after rock $oldCount with a height of $oldHeight")
+            println("Height increases $deltaH every $deltaR rocks after rock $oldCount")
+            println("Remainder: $remainder")
+            println("Total height after $numRocks rocks fall is $totalHeight")
+            done = true
+        } else {
+            stateSet[state] = Pair(chamber.rockCount, chamber.highestRow)
+        }
+    } while (!done)
+    val totalTime = System.currentTimeMillis() - startTime
+    println("Completed in $totalTime ms")
 }
 
 enum class AirCurrent { Left, Right, Unknown }
+
 class Currents(val currents: String) {
     var loc = 0
     fun next(): AirCurrent {
@@ -47,21 +80,27 @@ class RockPile(val rocks: List<Rock>) {
 
 class Rock(val points: List<Point>)
 
+data class ChamberState(val rockIndex: Int, val airCurrentIndex: Int, val points: Set<Point>)
+
 class Chamber(private val width: Int, private val rocks: RockPile, private val currents: Currents) {
-    val rockPoints = HashSet<Point>()
-    val fallingRock = HashSet<Point>()
+    private val rockPoints = HashSet<Point>()
+    private val fallingRock = HashSet<Point>()
+    var rockCount = 0L
 
     val highestRow get() = if (rockPoints.isNotEmpty()) rockPoints.maxOf { it.y } else 0
-    fun isTopFlat(): Boolean {
-        val currentHighest = highestRow
-        val testRow = (0 until width).map { Point(it, currentHighest) }
-        return rockPoints.containsAll(testRow)
+
+    private fun getCurrentFloor() = (0 until width).map { col -> rockPoints.filter { it.x == col }.maxOfOrNull { it.y }}.minOf { it?: 0 }
+    fun truncate(): ChamberState {
+        val floor = getCurrentFloor()
+        rockPoints.removeIf { it.y < floor - 1 }
+        return ChamberState(rocks.loc, currents.loc, rockPoints.map { Point(it.x, it.y - floor) }.toSet())
     }
 
     fun reset() {
         rockPoints.clear()
         fallingRock.clear()
         rocks.reset()
+        rockCount = 0
         currents.reset()
     }
 
@@ -72,9 +111,10 @@ class Chamber(private val width: Int, private val rocks: RockPile, private val c
         do { moveLateral() } while (moveDown())
         rockPoints.addAll(fallingRock)
         fallingRock.clear()
+        rockCount++
     }
 
-    fun moveLateral() {
+    private fun moveLateral() {
         assert (fallingRock.size > 0)
         val direction = currents.next()
         if (direction == AirCurrent.Left) {
@@ -92,7 +132,7 @@ class Chamber(private val width: Int, private val rocks: RockPile, private val c
         }
     }
 
-    fun moveDown(): Boolean {
+    private fun moveDown(): Boolean {
         assert (fallingRock.size > 0)
         if (!fallingRock.any { rockPoints.contains(Point(it.x, it.y - 1)) } &&
             !fallingRock.any { it.y <= 1 }) {
@@ -103,7 +143,7 @@ class Chamber(private val width: Int, private val rocks: RockPile, private val c
         } else return false
     }
 
-    fun drawLine(height: Int): String {
+    private fun drawLine(height: Int): String {
         if (height > 0) {
             return "|" + (0 until width).map {
                 if (rockPoints.contains(Point(it, height))) '#' else
@@ -121,5 +161,4 @@ class Chamber(private val width: Int, private val rocks: RockPile, private val c
         }
         return result
     }
-
 }
