@@ -8,41 +8,39 @@ fun main(args: Array<String>) {
     println("There are ${input.size} elements in the file")
 
     // Part 1 - mix the file
-    val part1File = GPSFile(input.mapIndexed { i, v -> Pair(v.toInt(), i) })
-    repeat(part1File.size) { part1File.mix() }
-    val one = part1File.getAfterZero(1000)
-    val two = part1File.getAfterZero(2000)
-    val three = part1File.getAfterZero(3000)
-    println("one: $one, two: $two, three: $three, sum: ${one + two + three}")
+    val part1File = GPSFile(input.mapIndexed { i, v -> Pair(v.toLong(), i) })
+    part1File.mix()
+    val part1 = listOf(1000, 2000, 3000).sumOf { part1File.getAfterZero(it) }
+    println(part1)
 
     // Part 2 - apply the decryption ket and mix the file 10 times
-    //val part2File =
+    val key = 811589153L
+    val part2File = GPSFile(input.mapIndexed { i, v -> Pair(v.toLong() * key, i) })
+    repeat(10) { part2File.mix() }
+    val part2 = listOf(1000, 2000, 3000).sumOf { part2File.getAfterZero(it) }
+    println(part2)
 }
 
-typealias FileEntry = Pair<Int, Int>
+typealias FileEntry = Pair<Long, Int>
+
 class GPSFile(items: List<FileEntry>) : ArrayList<FileEntry>(items) {
-    var nextIndexToMix = 0
-
-    override operator fun get(index: Int): FileEntry {
-        return super.get(normalizeIndex(index))
-    }
-
-    private fun normalizeIndex(i: Int): Int {
-        return if (i >= size)
-            i % size
-        else if (i < 0)
-            ((i % size) + size) % size
+    private fun normalizeIndex(i: Long): Int {
+        return if (i >= 0)
+            (i % size).toInt()
         else
-            i
+            (((i % size) + size) % size).toInt()
     }
 
     fun mix() {
-        val toMove = first { it.second == nextIndexToMix }
-        val curIndex = indexOf(toMove)
-        remove(toMove)
-        val dest = normalizeIndex(curIndex + toMove.first)
-        add(dest, toMove)
-        nextIndexToMix++
+        var nextIndexToMix = 0
+        repeat (size) {
+            val toMove = first { it.second == nextIndexToMix }
+            val curIndex = indexOf(toMove)
+            remove(toMove)
+            val dest = normalizeIndex(curIndex + toMove.first)
+            add(dest, toMove)
+            nextIndexToMix++
+        }
     }
 
     override fun toString(): String {
@@ -51,5 +49,5 @@ class GPSFile(items: List<FileEntry>) : ArrayList<FileEntry>(items) {
         }
     }
 
-    fun getAfterZero(count: Int) = this[indexOf(find { it.first == 0 }) + count].first
+    fun getAfterZero(count: Int) = this[normalizeIndex((indexOf(find { it.first == 0L }) + count).toLong())].first
 }
