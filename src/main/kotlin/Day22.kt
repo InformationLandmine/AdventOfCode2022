@@ -265,7 +265,7 @@ class MonkeyMap(private val tiles: List<MonkeyTile>, val connections: List<EdgeC
                     dest = connections.first { it.first == Pair(curTile, Edge.Left) }.second
                     when (dest.second) {
                         Edge.Top -> {
-                            moveTo = Point(curLoc.x, 0)
+                            moveTo = Point(curLoc.y, 0)
                             newOrientation = Orientation.Down
                         }
                         Edge.Bottom -> {
