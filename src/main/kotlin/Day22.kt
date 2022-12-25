@@ -170,10 +170,7 @@ fun main(args: Array<String>) {
         else if (it == "R") part1Map.turnRight()
         else repeat(it.toInt()) { part1Map.move() }
     }
-    println(part1Map.position.second)
-    println(part1Map.orientation)
-    println(part1Map.globalPosition)
-    println(part1Map.password)
+    println("Part 1 - the password is ${part1Map.password}")
 
     val part2Map = MonkeyMap(tiles, part2Connections)
     directions.forEach {
@@ -181,11 +178,7 @@ fun main(args: Array<String>) {
         else if (it == "R") part2Map.turnRight()
         else repeat(it.toInt()) { part2Map.move() }
     }
-    println(part2Map.position.second)
-    println(part2Map.orientation)
-    println(part2Map.globalPosition)
-    println(part2Map.password)
-    //154032 too high
+    println("Part 2 - the password is ${part2Map.password}")
 }
 
 typealias EdgeConnection = Pair<Pair<MonkeyTile, Edge>, Pair<MonkeyTile, Edge>>
